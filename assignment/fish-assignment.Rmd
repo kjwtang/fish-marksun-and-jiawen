@@ -8,6 +8,25 @@ output:
 library(tidyverse)
 ```
 
+
+```{r}
+download.file("https://zenodo.org/record/7814638/files/RAMLDB%20v4.61.zip?download=1",
+              "fish.zip")
+
+```
+
+```{r}
+unzip("fish.zip")
+
+
+```
+
+
+
+
+
+
+
 # Unit 2: Fisheries Collapse Module
 
 This module will focus on understanding and replicating fisheries stock assessment data and fisheries collapse.
