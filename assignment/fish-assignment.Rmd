@@ -4,9 +4,13 @@ output:
     df_print: tibble
 ---
 
-```{r setup, message = FALSE}
+```{r}
 library(tidyverse)
-options(timeout=1000)
+library(readxl)
+```
+
+```{r}
+#options(timeout=1000)
 ```
 
 
@@ -17,7 +21,54 @@ download.file("https://zenodo.org/record/7814638/files/RAMLDB%20v4.61.zip?downlo
 ```
 
 ```{r}
-unzip("fish.zip")
+xlsx <- "Excel/RAMLDB v4.61 (assessment data only).xlsx"
+readxl::excel_sheets(xlsx)
+```
+
+```{r}
+ts1 <- read_xlsx(xlsx, sheet = "timeseries.1")
+ts2 <- read_xlsx(xlsx, sheet = "timeseries.2")
+
+ts <- bind_rows(ts1, ts2) |>
+      distinct() |> 
+      filter(tsid == "TCbest-MT")
+```
+
+
+
+
+```{r}
+metrics <- read_xlsx(xlsx, sheet = "tsmetrics")
+
+units <- metrics |> 
+  filter(tscategory == "CATCH or LANDINGS") |>
+  filter(tsunitslong == "Metric tons")
+
+```
+
+
+```{r}
+
+ts <- ts |> left_join(metrics, by=c("tsid" = "tsunique"))
+ts
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```
