@@ -10,7 +10,7 @@ library(readxl)
 ```
 
 ```{r}
-#options(timeout=1000)
+options(timeout=1000)
 ```
 
 
@@ -32,6 +32,7 @@ ts2 <- read_xlsx(xlsx, sheet = "timeseries.2")
 ts <- bind_rows(ts1, ts2) |>
       distinct() |> 
       filter(tsid == "TCbest-MT")
+ts
 ```
 
 
@@ -43,7 +44,7 @@ metrics <- read_xlsx(xlsx, sheet = "tsmetrics")
 units <- metrics |> 
   filter(tscategory == "CATCH or LANDINGS") |>
   filter(tsunitslong == "Metric tons")
-
+metrics
 ```
 
 
@@ -52,6 +53,25 @@ units <- metrics |>
 ts <- ts |> left_join(metrics, by=c("tsid" = "tsunique"))
 ts
 ```
+```{r}
+stock <- read_xlsx(xlsx, sheet = "stock")
+stock
+#units <- stock |> 
+  #filter(tscategory == "CATCH or LANDINGS") |>
+  #filter(tsunitslong == "Metric tons")
+ts <- ts |> left_join(stock)
+ts
+```
+```{r}
+area <- read_xlsx(xlsx, sheet = "area")
+area
+```
+
+```{r}
+ts <- ts |> left_join(area)
+ts
+```
+
 
 
 
