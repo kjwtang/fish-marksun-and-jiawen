@@ -13,12 +13,12 @@ library(readxl)
 options(timeout=1000)
 ```
 
-
 ```{r}
 download.file("https://zenodo.org/record/7814638/files/RAMLDB%20v4.61.zip?download=1",
               "fish.zip")
 
 ```
+
 
 ```{r}
 xlsx <- "Excel/RAMLDB v4.61 (assessment data only).xlsx"
@@ -28,13 +28,14 @@ readxl::excel_sheets(xlsx)
 ```{r}
 ts1 <- read_xlsx(xlsx, sheet = "timeseries.1")
 ts2 <- read_xlsx(xlsx, sheet = "timeseries.2")
+assess<-read_xlsx(xlsx,sheet = "assessment")
+
 
 ts <- bind_rows(ts1, ts2) |>
       distinct() |> 
       filter(tsid == "TCbest-MT")
 ts
 ```
-
 
 
 
@@ -53,6 +54,7 @@ metrics
 ts <- ts |> left_join(metrics, by=c("tsid" = "tsunique"))
 ts
 ```
+
 ```{r}
 stock <- read_xlsx(xlsx, sheet = "stock")
 stock
@@ -63,6 +65,20 @@ ts <- ts |> left_join(stock)
 ts
 ```
 ```{r}
+most_recent <-
+  assess |> 
+  left_join(stock) |>
+  filter(commonname == "Atlantic cod") |>
+  filter(mostrecent == 999) |>
+  select(assessid)
+  
+```
+
+
+
+
+
+```{r}
 area <- read_xlsx(xlsx, sheet = "area")
 area
 ```
@@ -72,6 +88,14 @@ ts <- ts |> left_join(area)
 ts
 ```
 
+```{r}
+ts |>
+  filter(scientificname=="Gadus morhua") |>
+  inner_join(most_recent) |>
+  group_by(tsyear) |>
+  summarize(total=sum(tsvalue)) |>
+  ggplot(aes(tsyear,total)) + geom_point() +geom_line()
+```
 
 
 
