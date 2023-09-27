@@ -71,7 +71,15 @@ most_recent <-
   filter(commonname == "Atlantic cod") |>
   filter(mostrecent == 999) |>
   select(assessid)
-  
+most_recent
+
+least_recent <-
+  assess |> 
+  left_join(stock) |>
+  filter(commonname == "Atlantic cod") |>
+  filter(mostrecent == 0) |>
+  select(assessid)
+least_recent
 ```
 
 
@@ -92,14 +100,32 @@ ts
 cod <- ts |>
   filter(scientificname == "Gadus morhua") |>
   filter(country=="Canada") |>
+  filter(tsyear > 1945) |>
   inner_join(most_recent, by = "assessid") 
-
+cod
+#cod2 1850-1945 correct
+cod2 <- ts |>
+  filter(scientificname == "Gadus morhua") |>
+  filter(country=="Canada") |>
+  filter(tsyear < 1945) |>
+  inner_join(least_recent, by = "assessid") 
+cod2
 cod |>
   group_by(tsyear) |>
   summarize(total = sum(tsvalue, na.rm = TRUE)) |>
   ggplot(aes(tsyear,total)) + geom_point() +geom_line()
 
+cod2 |>
+  group_by(tsyear) |>
+  summarize(total = sum(tsvalue, na.rm = TRUE)) |>
+  ggplot(aes(tsyear,total)) + geom_point() +geom_line()
+
 ```
+
+```{r}
+
+```
+
 
 
 
