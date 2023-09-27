@@ -91,6 +91,7 @@ ts
 ```{r}
 cod <- ts |>
   filter(scientificname == "Gadus morhua") |>
+  filter(country=="Canada") |>
   inner_join(most_recent, by = "assessid") 
 
 cod |>
