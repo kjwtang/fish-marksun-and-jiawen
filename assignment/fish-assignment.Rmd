@@ -89,12 +89,15 @@ ts
 ```
 
 ```{r}
-ts |>
-  filter(scientificname=="Gadus morhua") |>
-  inner_join(most_recent) |>
+cod <- ts |>
+  filter(scientificname == "Gadus morhua") |>
+  inner_join(most_recent, by = "assessid") 
+
+cod |>
   group_by(tsyear) |>
-  summarize(total=sum(tsvalue)) |>
+  summarize(total = sum(tsvalue, na.rm = TRUE)) |>
   ggplot(aes(tsyear,total)) + geom_point() +geom_line()
+
 ```
 
 
