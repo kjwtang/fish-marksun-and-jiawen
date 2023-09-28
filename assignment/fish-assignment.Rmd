@@ -123,7 +123,17 @@ cod2 |>
 ```
 
 ```{r}
+cod_2J3KL <- cod |>
+  #filter(stockid=="COD2J3KL") |>
+  filter(areaid== "Canada-DFO-2J3KL") |>
+  select(tsyear, tsvalue,stockid, areaid) |>
+  mutate(max_harvest = max(tsvalue),
+         collapsed= tsvalue/max_harvest*100)
 
+cod_2J3KL |>
+  ggplot(aes(tsyear,collapsed)) + geom_point() +geom_line()
+
+  
 ```
 
 
