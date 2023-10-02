@@ -124,6 +124,7 @@ cod2 |>
 ```
 
 ```{r}
+options(scipen = 999)
 cod_2J3KL <- cod |>
   filter(stockid=="COD2J3KL") |>
   filter(areaid== "Canada-DFO-2J3KL") |>
