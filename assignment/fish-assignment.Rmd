@@ -143,7 +143,7 @@ cod2J3KL_pre1957 <- cod2 |>
 cod2J3KL_pre1957 |> ggplot(aes(tsyear,total)) + geom_line() + geom_point()
 cod2J3KL_ALL <- rbind(cod2J3KL_post1957, cod2J3KL_pre1957)
 ggplot(cod2J3KL_ALL, aes(tsyear, total, group = 1)) +
-  geom_line() + geom_point()
+  geom_line() + geom_point()+ggtitle("Fish landings in tons")
   
 ```
 
