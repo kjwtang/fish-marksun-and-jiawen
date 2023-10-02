@@ -162,6 +162,14 @@ fish
 
 ```{r}
 collapsed <- 
+  ts |>
+  inner_join(most_recent,by = "assessid") |>
+  filter(scientificname == "Gadus morhua")|>
+  group_by(stockid) |>
+  mutate(collapsed = tsvalue<0.1*max(tsvalue,na.rm = TRUE))
+collapsed
+
+
 ```
 
 
