@@ -150,10 +150,10 @@ ggplot(cod2J3KL_ALL, aes(tsyear, total, group = 1)) +
 ```{r}
 fish <- cod_2J3KL |>
   select(tsyear, tsvalue, stockid, areaid) |>
-  mutate(collapsed= tsvalue < 0.1 * max(tsvalue, na.rm = TRUE))
+  mutate(collapsed = tsvalue < 0.1 * max(tsvalue, na.rm = TRUE))
 
 fish |>
-  ggplot(aes(tsyear, tsvalue))
+  ggplot(aes(tsyear, tsvalue, col = collapsed)) + geom_point() 
 
 fish
  
