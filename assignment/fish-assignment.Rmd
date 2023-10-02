@@ -148,17 +148,21 @@ ggplot(cod2J3KL_ALL, aes(tsyear, total, group = 1)) +
 ```
 
 ```{r}
-cod_2J3KL_new <- cod_2J3KL |>
-  select(tsyear, tsvalue,stockid, areaid) |>
-  mutate(max_harvest = max(tsvalue),
-         collapsed= (tsvalue < max_harvest*0.1)) |>
-  filter(tsyear > 1968)
+fish <- cod_2J3KL |>
+  select(tsyear, tsvalue, stockid, areaid) |>
+  mutate(collapsed= tsvalue < 0.1 * max(tsvalue, na.rm = TRUE))
 
-cod_2J3KL_new
+fish |>
+  ggplot(aes(tsyear, tsvalue))
 
+fish
+ 
   
 ```
 
+```{r}
+collapsed <- 
+```
 
 
 
