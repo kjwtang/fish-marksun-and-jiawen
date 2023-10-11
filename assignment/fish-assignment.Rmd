@@ -162,6 +162,15 @@ ggplot(cod2J3KL_ALL, aes(tsyear, total, group = 1)) +
   geom_line() + geom_point()+ggtitle("Fish landings in tons")
   
 ```
+------------------------------------------------------------------------
+
+# Exercise 2: Group Assignment
+
+## Stock Collapses
+
+We seek to replicate the temporal trend in stock declines shown in [Worm et al 2006](http://doi.org/10.1126/science.1132294):
+
+![](http://espm-157.carlboettiger.info/img/worm2006.jpg)
 
 ```{r}
 fish <- cod_2J3KL |>
@@ -177,15 +186,50 @@ fish
 ```
 
 ```{r}
-collapsed <- 
-  ts |>
-  inner_join(most_recent,by = "assessid") |>
-  filter(scientificname == "Gadus morhua")|>
-  group_by(stockid) |>
-  mutate(collapsed = tsvalue<0.1*max(tsvalue,na.rm = TRUE))
-collapsed
+
+catch <- ts %>%
+  filter(tsid == "TCbest-MT") |>
+  group_by(tsyear, scientificname) |>
+  summarise(total_catch = sum(tsvalue, na.rm = TRUE)) |>
+  group_by(scientificname) |>
+  mutate(current_tot = cummax(total_catch), 
+         is_collapse = total_catch < 0.1 *current_tot,
+         ever_collapse = cumsum(is_collapse) > 0)
+catch
+```
 
 
+```{r}
+years <- 1950:2003
+
+n <- nrow(catch |> 
+            group_by(scientificname, tsyear) |>
+            filter(tsyear %in% years) |>
+            group_by(scientificname)|>
+            count() |>
+            filter(n == length(years))
+            )
+
+```
+
+```{r}
+catch_prop <- catch |>
+  filter(tsyear %in% years) |>
+  group_by(tsyear)|>
+  summarise(collapse = sum(is_collapse),
+            ever_collapsed = sum(ever_collapse),
+            .groups = 'drop')|>
+  group_by(tsyear)|>
+  mutate(collapsed_taxa = 100.0 * collapse / n)|>
+  ungroup()|>
+  mutate(collapsed_taxa_cum = 100.0 * ever_collapsed / n) |>
+  select(tsyear, collapsed_taxa, collapsed_taxa_cum)
+
+catch_graph <- catch_prop |>
+  pivot_longer(cols =
+                 collapsed_taxa:collapsed_taxa_cum, names_to = "category", values_to = "count")
+
+catch_graph
 ```
 
 
@@ -203,9 +247,6 @@ collapsed
 
 
 
-
-
-
 ```
 
 
@@ -216,12 +257,3 @@ collapsed
 
 
 
-------------------------------------------------------------------------
-
-# Exercise 2: Group Assignment
-
-## Stock Collapses
-
-We seek to replicate the temporal trend in stock declines shown in [Worm et al 2006](http://doi.org/10.1126/science.1132294):
-
-![](http://espm-157.carlboettiger.info/img/worm2006.jpg)
