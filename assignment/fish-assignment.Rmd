@@ -232,6 +232,17 @@ catch_graph <- catch_prop |>
 catch_graph
 ```
 
+```{r}
+ggplot(data = catch_graph,aes(x=tsyear, y=count,shape= category))+
+  geom_smooth(se = FALSE, col="black",linewidth = 0.5)+
+  geom_point()+
+  scale_y_reverse()+
+  labs(y = "Collapsed taxt (%)",
+       x = "year")+
+  ggtitle("Stock Collapses")
+
+```
+
 
 
 
