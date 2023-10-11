@@ -1,16 +1,13 @@
 
-*add GitHub Actions CI badge here*
+[![Reproducibility](https://github.com/espm-157/fish-marksun-and-jiawen/actions/workflows/main.yml/badge.svg)](https://github.com/espm-157/fish-marksun-and-jiawen/actions/workflows/main.yml)
 
 ## Team Members:
 
 - Jiawen Tang, kjwtang
-- Mark Sun, github handle
+- Xiangrong (Mark) Sun, MarkSun2001
 
-This repository is a template for your team's repository.
-
-## assignment
-
-All work for this assignment should be in the `assignment` directory.  You will work in the `.Rmd` notebook, and commit your rendered output files (`.md` and associated files) in the `assignment` directory as well.
+## Assignment
+This repository is a general data assessment of global fisheries stock and collapse over the past decacdes. It uses large-scale database containing multiple tables to construct a time series fisheries assessment.
 
 ## Special files
 
