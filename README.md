@@ -9,6 +9,8 @@
 ## Assignment
 This repository is a general data assessment of global fisheries stock and collapse over the past decacdes. It uses large-scale database containing multiple tables to construct a time series fisheries assessment.
 
+All work for this project in the assignment directory. Code is contained in the fish-assignment.Rmd notebook and final rendered output files are in the assignment directory as well. 
+
 ## Special files
 
 All team repositories will also include most of the special files found here:
