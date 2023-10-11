@@ -142,16 +142,16 @@ cod2 |>
 ```{r}
 options(scipen = 999)
 cod_2J3KL <- cod |>
-  filter(stockid=="COD2J3KL") |>
-  filter(areaid== "Canada-DFO-2J3KL") |>
+  filter(stockid =="COD2J3KL") |>
+  filter(areaid == "Canada-DFO-2J3KL") |>
   inner_join(most_recent, by = "assessid") 
 cod2J3KL_post1957 <- cod_2J3KL |>
   group_by(tsyear) |>
   summarise(total = sum(tsvalue, na.rm = TRUE))
 cod2J3KL_post1957 |> ggplot(aes(tsyear,total)) + geom_line() + geom_point()
 cod2J3KL_pre1957 <- cod2 |>
-  filter(stockid=="COD2J3KL") |>
-  filter(areaid== "Canada-DFO-2J3KL") |>
+  filter(stockid =="COD2J3KL") |>
+  filter(areaid == "Canada-DFO-2J3KL") |>
   inner_join(least_recent, by = "assessid") |> 
   group_by(tsyear) |>
   summarise(total = sum(tsvalue, na.rm = TRUE)) |>
