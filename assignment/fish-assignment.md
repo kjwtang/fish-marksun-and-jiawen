@@ -27,6 +27,21 @@ download.file("https://zenodo.org/record/7814638/files/RAMLDB%20v4.61.zip?downlo
               "fish.zip")
 ```
 
+# Unit 2: Fisheries Collapse Module
+
+This module will focus on understanding and replicating fisheries stock
+assessment data and fisheries collapse.
+
+Instead of working with independent data.frames, we will be working with
+a large relational database which contains many different tables of
+different sizes and shapes, but that all all related to each other
+through a series of different ids.
+
+## The Database
+
+We will use data from the [RAM Legacy Stock Assessment
+Database](https://www.ramlegacy.org/database/)
+
 ``` r
 xlsx <- "Excel/RAMLDB v4.61 (assessment data only).xlsx"
 readxl::excel_sheets(xlsx)
@@ -45,6 +60,16 @@ readxl::excel_sheets(xlsx)
     ## [21] "timeseries_sources_views"     "timeseries_units_views"      
     ## [23] "timeseries_values_views"      "timeseries_years_views"      
     ## [25] "tsmetrics"
+
+# Exercise 1: Investigating the North-Atlantic Cod
+
+Now we are ready to dive into our data. First, We seek to replicate the
+following figure from the Millennium Ecosystem Assessment Project using
+the RAM data.
+
+![](http://espm-157.carlboettiger.info/img/cod.jpg)
+
+## placeholder
 
 ``` r
 ts1 <- read_xlsx(xlsx, sheet = "timeseries.1")
@@ -365,9 +390,10 @@ cod2 |>
 ![](fish-assignment_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 ``` r
+options(scipen = 999)
 cod_2J3KL <- cod |>
-  filter(stockid=="COD2J3KL") |>
-  filter(areaid== "Canada-DFO-2J3KL") |>
+  filter(stockid =="COD2J3KL") |>
+  filter(areaid == "Canada-DFO-2J3KL") |>
   inner_join(most_recent, by = "assessid") 
 cod2J3KL_post1957 <- cod_2J3KL |>
   group_by(tsyear) |>
@@ -379,8 +405,8 @@ cod2J3KL_post1957 |> ggplot(aes(tsyear,total)) + geom_line() + geom_point()
 
 ``` r
 cod2J3KL_pre1957 <- cod2 |>
-  filter(stockid=="COD2J3KL") |>
-  filter(areaid== "Canada-DFO-2J3KL") |>
+  filter(stockid =="COD2J3KL") |>
+  filter(areaid == "Canada-DFO-2J3KL") |>
   inner_join(least_recent, by = "assessid") |> 
   group_by(tsyear) |>
   summarise(total = sum(tsvalue, na.rm = TRUE)) |>
@@ -393,50 +419,10 @@ cod2J3KL_pre1957 |> ggplot(aes(tsyear,total)) + geom_line() + geom_point()
 ``` r
 cod2J3KL_ALL <- rbind(cod2J3KL_post1957, cod2J3KL_pre1957)
 ggplot(cod2J3KL_ALL, aes(tsyear, total, group = 1)) +
-  geom_line() + geom_point()
+  geom_line() + geom_point()+ggtitle("Fish landings in tons")
 ```
 
 ![](fish-assignment_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
-
-``` r
-cod_2J3KL_new <- cod_2J3KL |>
-  select(tsyear, tsvalue,stockid, areaid) |>
-  mutate(max_harvest = max(tsvalue),
-         collapsed= tsvalue/max_harvest*100) |>
-  filter(tsyear > 1968)
-
-cod_2J3KL_new |>
-  ggplot(aes(tsyear,collapsed)) + geom_point() +geom_line()
-```
-
-![](fish-assignment_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
-
-\`\`\`
-
-# Unit 2: Fisheries Collapse Module
-
-This module will focus on understanding and replicating fisheries stock
-assessment data and fisheries collapse.
-
-Instead of working with independent data.frames, we will be working with
-a large relational database which contains many different tables of
-different sizes and shapes, but that all all related to each other
-through a series of different ids.
-
-## The Database
-
-We will use data from the [RAM Legacy Stock Assessment
-Database](https://www.ramlegacy.org/database/)
-
-# Exercise 1: Investigating the North-Atlantic Cod
-
-Now we are ready to dive into our data. First, We seek to replicate the
-following figure from the Millennium Ecosystem Assessment Project using
-the RAM data.
-
-![](http://espm-157.carlboettiger.info/img/cod.jpg)
-
-## placeholder
 
 ------------------------------------------------------------------------
 
@@ -448,3 +434,129 @@ We seek to replicate the temporal trend in stock declines shown in [Worm
 et al 2006](http://doi.org/10.1126/science.1132294):
 
 ![](http://espm-157.carlboettiger.info/img/worm2006.jpg)
+
+``` r
+fish <- cod_2J3KL |>
+  select(tsyear, tsvalue, stockid, areaid) |>
+  mutate(collapsed = tsvalue < 0.1 * max(tsvalue, na.rm = TRUE))
+
+fish |>
+  ggplot(aes(tsyear, tsvalue, col = collapsed)) + geom_point() 
+```
+
+![](fish-assignment_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+fish
+```
+
+    ## # A tibble: 59 × 5
+    ##    tsyear tsvalue stockid  areaid           collapsed
+    ##     <dbl>   <dbl> <chr>    <chr>            <lgl>    
+    ##  1   1959 363510. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ##  2   1960 463788. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ##  3   1961 506407. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ##  4   1962 506407. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ##  5   1963 511421. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ##  6   1964 601671. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ##  7   1965 546518. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ##  8   1966 518942. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ##  9   1967 611699. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ## 10   1968 814763. COD2J3KL Canada-DFO-2J3KL FALSE    
+    ## # ℹ 49 more rows
+
+``` r
+catch <- ts %>%
+  filter(tsid == "TCbest-MT") |>
+  group_by(tsyear, scientificname) |>
+  summarise(total_catch = sum(tsvalue, na.rm = TRUE)) |>
+  group_by(scientificname) |>
+  mutate(current_tot = cummax(total_catch), 
+         is_collapse = total_catch < 0.1 *current_tot,
+         ever_collapse = cumsum(is_collapse) > 0)
+```
+
+    ## `summarise()` has grouped output by 'tsyear'. You can override using the
+    ## `.groups` argument.
+
+``` r
+catch
+```
+
+    ## # A tibble: 21,248 × 6
+    ##    tsyear scientificname       total_catch current_tot is_collapse ever_collapse
+    ##     <dbl> <chr>                      <dbl>       <dbl> <lgl>       <lgl>        
+    ##  1   1800 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  2   1801 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  3   1802 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  4   1803 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  5   1804 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  6   1805 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  7   1806 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  8   1807 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  9   1808 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ## 10   1809 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ## # ℹ 21,238 more rows
+
+``` r
+years <- 1950:2003
+
+n <- nrow(catch |> 
+            group_by(scientificname, tsyear) |>
+            filter(tsyear %in% years) |>
+            group_by(scientificname)|>
+            count() |>
+            filter(n == length(years))
+            )
+```
+
+``` r
+catch_prop <- catch |>
+  filter(tsyear %in% years) |>
+  group_by(tsyear)|>
+  summarise(collapse = sum(is_collapse),
+            ever_collapsed = sum(ever_collapse),
+            .groups = 'drop')|>
+  group_by(tsyear)|>
+  mutate(collapsed_taxa = 100.0 * collapse / n)|>
+  ungroup()|>
+  mutate(collapsed_taxa_cum = 100.0 * ever_collapsed / n) |>
+  select(tsyear, collapsed_taxa, collapsed_taxa_cum)
+
+catch_graph <- catch_prop |>
+  pivot_longer(cols =
+                 collapsed_taxa:collapsed_taxa_cum, names_to = "category", values_to = "count")
+
+catch_graph
+```
+
+    ## # A tibble: 108 × 3
+    ##    tsyear category           count
+    ##     <dbl> <chr>              <dbl>
+    ##  1   1950 collapsed_taxa      1.69
+    ##  2   1950 collapsed_taxa_cum 16.1 
+    ##  3   1951 collapsed_taxa      2.54
+    ##  4   1951 collapsed_taxa_cum 16.9 
+    ##  5   1952 collapsed_taxa      1.69
+    ##  6   1952 collapsed_taxa_cum 17.8 
+    ##  7   1953 collapsed_taxa      4.24
+    ##  8   1953 collapsed_taxa_cum 19.5 
+    ##  9   1954 collapsed_taxa      2.54
+    ## 10   1954 collapsed_taxa_cum 19.5 
+    ## # ℹ 98 more rows
+
+``` r
+ggplot(data = catch_graph,aes(x=tsyear, y=count,shape= category))+
+  geom_smooth(se = FALSE, col="black",linewidth = 0.5)+
+  geom_point()+
+  scale_y_reverse()+
+  labs(y = "Collapsed taxt (%)",
+       x = "year")+
+  ggtitle("Stock Collapses")
+```
+
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+
+![](fish-assignment_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+\`\`\`
