@@ -1,8 +1,10 @@
 ---
-output: 
-  github_document:
-    df_print: tibble
+title: "Mark and Jiawen Fisheries Collapse Project"
+author: "Carl Boettiger & Dana Seidel & Xiangrong (Mark) Sun & Jiawen Tang"
+output: github_document
 ---
+
+Setups before we start:
 
 ```{r}
 library(tidyverse)
@@ -19,11 +21,11 @@ download.file("https://zenodo.org/record/7814638/files/RAMLDB%20v4.61.zip?downlo
 
 ```
 
-# Unit 2: Fisheries Collapse Module
+# Fisheries Collapse
 
-This module will focus on understanding and replicating fisheries stock assessment data and fisheries collapse.
+In this project, we will prove and visualize the fisheries collapse in 1992 using the fisheries stock assessment data. We will first use the North Atlantic Cod as a specific case study and then reproduce the whole fisheries globally.
 
-Instead of working with independent data.frames, we will be working with a large relational database which contains many different tables of different sizes and shapes, but that all all related to each other through a series of different ids.
+We will be working with a large relational database containing many different tables of different sizes and shapes, but all all related to each other through a series of different ids.
 
 ## The Database
 
@@ -34,50 +36,40 @@ xlsx <- "Excel/RAMLDB v4.61 (assessment data only).xlsx"
 readxl::excel_sheets(xlsx)
 ```
 
-# Exercise 1: Investigating the North-Atlantic Cod
+# Part 1: Investigating the North-Atlantic Cod
 
-Now we are ready to dive into our data. First, We seek to replicate the following figure from the Millennium Ecosystem Assessment Project using the RAM data.
+We seek to replicate the following figure from the Millennium Ecosystem Assessment Project using the RAM data. This is the original data:
 
 ![](http://espm-157.carlboettiger.info/img/cod.jpg)
 
-## placeholder
+## Merge all the data into a readable table
 
 ```{r}
 ts1 <- read_xlsx(xlsx, sheet = "timeseries.1")
 ts2 <- read_xlsx(xlsx, sheet = "timeseries.2")
 assess<-read_xlsx(xlsx,sheet = "assessment")
 
-
 ts <- bind_rows(ts1, ts2) |>
       distinct() |> 
       filter(tsid == "TCbest-MT")
-ts
-```
-
-```{r}
 metrics <- read_xlsx(xlsx, sheet = "tsmetrics")
 
 units <- metrics |> 
   filter(tscategory == "CATCH or LANDINGS") |>
   filter(tsunitslong == "Metric tons")
-metrics
-```
-
-```{r}
 
 ts <- ts |> left_join(metrics, by=c("tsid" = "tsunique"))
+
+stock <- read_xlsx(xlsx, sheet = "stock")
+ts <- ts |> left_join(stock)
+
+area <- read_xlsx(xlsx, sheet = "area")
+ts <- ts |> left_join(area)
+
 ts
 ```
 
-```{r}
-stock <- read_xlsx(xlsx, sheet = "stock")
-stock
-#units <- stock |> 
-  #filter(tscategory == "CATCH or LANDINGS") |>
-  #filter(tsunitslong == "Metric tons")
-ts <- ts |> left_join(stock)
-ts
-```
+## Create a time-dependent dataset
 
 ```{r}
 most_recent <-
@@ -86,7 +78,6 @@ most_recent <-
   filter(commonname == "Atlantic cod") |>
   filter(mostrecent == 999) |>
   select(assessid)
-most_recent
 
 least_recent <-
   assess |> 
@@ -94,18 +85,11 @@ least_recent <-
   filter(commonname == "Atlantic cod") |>
   filter(mostrecent == 0) |>
   select(assessid)
-least_recent
 ```
 
-```{r}
-area <- read_xlsx(xlsx, sheet = "area")
-area
-```
+## Try to find Data in two time period
 
-```{r}
-ts <- ts |> left_join(area)
-ts
-```
+Make two graphs:
 
 ```{r}
 cod <- ts |>
@@ -113,14 +97,13 @@ cod <- ts |>
   filter(country=="Canada") |>
   filter(tsyear > 1957) |>
   inner_join(most_recent, by = "assessid") 
-cod
-#cod2 1850-1945 correct
+
 cod2 <- ts |>
   filter(scientificname == "Gadus morhua") |>
   filter(country=="Canada") |>
   filter(tsyear < 1957) |>
   inner_join(least_recent, by = "assessid") 
-cod2
+
 cod |>
   group_by(tsyear) |>
   summarize(total = sum(tsvalue, na.rm = TRUE)) |>
@@ -133,6 +116,8 @@ cod2 |>
 
 ```
 
+Now we have all we want, lets recreate the graph we want:
+
 ```{r}
 options(scipen = 999)
 cod_2J3KL <- cod |>
@@ -142,7 +127,7 @@ cod_2J3KL <- cod |>
 cod2J3KL_post1957 <- cod_2J3KL |>
   group_by(tsyear) |>
   summarise(total = sum(tsvalue, na.rm = TRUE))
-cod2J3KL_post1957 |> ggplot(aes(tsyear,total)) + geom_line() + geom_point()
+#cod2J3KL_post1957 |> ggplot(aes(tsyear,total)) + geom_line() + geom_point()
 cod2J3KL_pre1957 <- cod2 |>
   filter(stockid =="COD2J3KL") |>
   filter(areaid == "Canada-DFO-2J3KL") |>
@@ -150,10 +135,10 @@ cod2J3KL_pre1957 <- cod2 |>
   group_by(tsyear) |>
   summarise(total = sum(tsvalue, na.rm = TRUE)) |>
   filter(tsyear < 1957)
-cod2J3KL_pre1957 |> ggplot(aes(tsyear,total)) + geom_line() + geom_point()
+#cod2J3KL_pre1957 |> ggplot(aes(tsyear,total)) + geom_line() + geom_point()
 cod2J3KL_ALL <- rbind(cod2J3KL_post1957, cod2J3KL_pre1957)
 ggplot(cod2J3KL_ALL, aes(tsyear, total, group = 1)) +
-  geom_line() + geom_point()+ggtitle("Fish landings in tons")
+  geom_line(col = "blue") + geom_point(col = "blue")+ggtitle("Fish landings in tons")
   
 ```
 
@@ -174,10 +159,6 @@ fish <- cod_2J3KL |>
 
 fish |>
   ggplot(aes(tsyear, tsvalue, col = collapsed)) + geom_point() 
-
-fish
- 
-  
 ```
 
 ```{r}
@@ -190,7 +171,6 @@ catch <- ts %>%
   mutate(current_tot = cummax(total_catch), 
          is_collapse = total_catch < 0.1 *current_tot,
          ever_collapse = cumsum(is_collapse) > 0)
-catch
 ```
 
 ```{r}
@@ -203,7 +183,6 @@ n <- nrow(catch |>
             count() |>
             filter(n == length(years))
             )
-
 ```
 
 ```{r}
