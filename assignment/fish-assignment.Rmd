@@ -23,9 +23,9 @@ download.file("https://zenodo.org/record/7814638/files/RAMLDB%20v4.61.zip?downlo
 
 # Fisheries Collapse
 
-In this project, we will prove and visualize the fisheries collapse in 1992 using the fisheries stock assessment data. We will first use the North Atlantic Cod as a specific case study and then reproduce the whole fisheries globally.
+In this project, we will prove and visualize the fisheries collapse in 1992 using the fisheries stock assessment data. We will first use the North Atlantic Cod as a specific case study and then reproduce global fisheries as a whole.
 
-We will be working with a large relational database containing many different tables of different sizes and shapes, but all all related to each other through a series of different ids.
+We will be working with a large relational database containing many different tables of different sizes and shapes, but are all related to each other through a series of ids.
 
 ## The Database
 
@@ -47,7 +47,7 @@ We seek to replicate the following figure from the Millennium Ecosystem Assessme
 ```{r}
 ts1 <- read_xlsx(xlsx, sheet = "timeseries.1")
 ts2 <- read_xlsx(xlsx, sheet = "timeseries.2")
-assess<-read_xlsx(xlsx,sheet = "assessment")
+assess <- read_xlsx(xlsx,sheet = "assessment")
 
 ts <- bind_rows(ts1, ts2) |>
       distinct() |> 
@@ -116,7 +116,7 @@ cod2 |>
 
 ```
 
-Now we have all we want, lets recreate the graph we want:
+Now we have all we need, let's recreate the graph we want by binding the 2 graphs:
 
 ```{r}
 options(scipen = 999)
@@ -152,6 +152,8 @@ We seek to replicate the temporal trend in stock declines shown in [Worm et al 2
 
 ![](http://espm-157.carlboettiger.info/img/worm2006.jpg)
 
+## We create a pilot study of cod species showing the "collapse" status
+
 ```{r}
 fish <- cod_2J3KL |>
   select(tsyear, tsvalue, stockid, areaid) |>
@@ -161,8 +163,9 @@ fish |>
   ggplot(aes(tsyear, tsvalue, col = collapsed)) + geom_point() 
 ```
 
-```{r}
+## We calculated the total catch of each fish species to evaluate the collapse status
 
+```{r}
 catch <- ts %>%
   filter(tsid == "TCbest-MT") |>
   group_by(tsyear, scientificname) |>
@@ -171,7 +174,10 @@ catch <- ts %>%
   mutate(current_tot = cummax(total_catch), 
          is_collapse = total_catch < 0.1 *current_tot,
          ever_collapse = cumsum(is_collapse) > 0)
+catch
 ```
+
+## We define a time range from 1950 to 2003 and filter the results in this range. We calculated the percentage of collapsed taxa as well as cumulative collapsed taxa.
 
 ```{r}
 years <- 1950:2003
@@ -205,6 +211,8 @@ catch_graph <- catch_prop |>
 catch_graph
 ```
 
+## We generate the graph to show fisheries stock collapse from 1950 to 2003
+
 ```{r}
 ggplot(data = catch_graph,aes(x=tsyear, y=count,shape= category))+
   geom_smooth(se = FALSE, col="black",linewidth = 0.5)+
@@ -215,5 +223,3 @@ ggplot(data = catch_graph,aes(x=tsyear, y=count,shape= category))+
   ggtitle("Stock Collapses")
 
 ```
-
-\`\`\`
