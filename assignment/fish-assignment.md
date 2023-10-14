@@ -36,12 +36,12 @@ download.file("https://zenodo.org/record/7814638/files/RAMLDB%20v4.61.zip?downlo
 
 In this project, we will prove and visualize the fisheries collapse in
 1992 using the fisheries stock assessment data. We will first use the
-North Atlantic Cod as a specific case study and then reproduce the whole
-fisheries globally.
+North Atlantic Cod as a specific case study and then reproduce global
+fisheries as a whole.
 
 We will be working with a large relational database containing many
-different tables of different sizes and shapes, but all all related to
-each other through a series of different ids.
+different tables of different sizes and shapes, but are all related to
+each other through a series of ids.
 
 ## The Database
 
@@ -79,7 +79,7 @@ Assessment Project using the RAM data. This is the original data:
 ``` r
 ts1 <- read_xlsx(xlsx, sheet = "timeseries.1")
 ts2 <- read_xlsx(xlsx, sheet = "timeseries.2")
-assess<-read_xlsx(xlsx,sheet = "assessment")
+assess <- read_xlsx(xlsx,sheet = "assessment")
 
 ts <- bind_rows(ts1, ts2) |>
       distinct() |> 
@@ -188,7 +188,8 @@ cod2 |>
 
 ![](fish-assignment_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
 
-Now we have all we want, lets recreate the graph we want:
+Now we have all we need, let’s recreate the graph we want by binding the
+2 graphs:
 
 ``` r
 options(scipen = 999)
@@ -226,6 +227,8 @@ et al 2006](http://doi.org/10.1126/science.1132294):
 
 ![](http://espm-157.carlboettiger.info/img/worm2006.jpg)
 
+## We create a pilot study of cod species showing the “collapse” status
+
 ``` r
 fish <- cod_2J3KL |>
   select(tsyear, tsvalue, stockid, areaid) |>
@@ -236,6 +239,8 @@ fish |>
 ```
 
 ![](fish-assignment_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+## We calculated the total catch of each fish species to evaluate the collapse status
 
 ``` r
 catch <- ts %>%
@@ -250,6 +255,28 @@ catch <- ts %>%
 
     ## `summarise()` has grouped output by 'tsyear'. You can override using the
     ## `.groups` argument.
+
+``` r
+catch
+```
+
+    ## # A tibble: 21,248 × 6
+    ## # Groups:   scientificname [385]
+    ##    tsyear scientificname       total_catch current_tot is_collapse ever_collapse
+    ##     <dbl> <chr>                      <dbl>       <dbl> <lgl>       <lgl>        
+    ##  1   1800 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  2   1801 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  3   1802 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  4   1803 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  5   1804 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  6   1805 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  7   1806 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  8   1807 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ##  9   1808 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ## 10   1809 Hippoglossus hippog…           0           0 FALSE       FALSE        
+    ## # ℹ 21,238 more rows
+
+## We define a time range from 1950 to 2003 and filter the results in this range. We calculated the percentage of collapsed taxa as well as cumulative collapsed taxa.
 
 ``` r
 years <- 1950:2003
@@ -298,6 +325,8 @@ catch_graph
     ## 10   1954 collapsed_taxa_cum 19.5 
     ## # ℹ 98 more rows
 
+## We generate the graph to show fisheries stock collapse from 1950 to 2003
+
 ``` r
 ggplot(data = catch_graph,aes(x=tsyear, y=count,shape= category))+
   geom_smooth(se = FALSE, col="black",linewidth = 0.5)+
@@ -312,4 +341,11 @@ ggplot(data = catch_graph,aes(x=tsyear, y=count,shape= category))+
 
 ![](fish-assignment_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
-\`\`\`
+## Conclusion
+
+We observed a taxa and cod capture collapse in the late 20th century.
+The situation has gotten better after 2006 since the regulation was
+established, but scientific studies still think we might face more
+issues as climate change and population growth. Fishery as one of the
+biggest protein supplies in the world, must be well protected to
+sustainable feed the growing population.

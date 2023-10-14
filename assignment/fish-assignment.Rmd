@@ -223,3 +223,7 @@ ggplot(data = catch_graph,aes(x=tsyear, y=count,shape= category))+
   ggtitle("Stock Collapses")
 
 ```
+
+## Conclusion
+
+We observed a taxa and cod capture collapse in the late 20th century. The situation has gotten better after 2006 since the regulation was established, but scientific studies still think we might face more issues as climate change and population growth. Fishery as one of the biggest protein supplies in the world, must be well protected to sustainable feed the growing population.
